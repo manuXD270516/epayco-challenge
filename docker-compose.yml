@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: always
+    container_name: mysql-wallet
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+  wallet-db-service:
+    build:
+      context: ./wallet-db-service
+      dockerfile: Dockerfile
+    container_name: wallet-db
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - mysql
+
+  wallet-api-service:
+    build:
+      context: ./wallet-api-service
+      dockerfile: Dockerfile
+    container_name: wallet-api
+    ports:
+      - "4000:3000"
+    environment:
+      DB_SERVICE_URL: http://wallet-db:3000
+    depends_on:
+      - wallet-db-service
+
+volumes:
+  mysql_data:
