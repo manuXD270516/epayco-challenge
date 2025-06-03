@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaymentSession } from 'src/modules/client/entities/payment-session.entity';
-import { WalletTransaction } from 'src/modules/client/entities/wallet-transaction.entity';
+import {
+  RechargeDto,
+  BalanceDto,
+  StartPaymentDto,
+  ConfirmPaymentDto,
+} from 'src/modules/wallet/dto/wallet.dtos';
 import { Repository } from 'typeorm';
-import { RechargeDto, BalanceDto, StartPaymentDto, ConfirmPaymentDto } from '../../dto/wallet.dtos';
+import { PaymentSession } from '../entities/payment-session.entity';
+import { WalletTransaction } from '../entities/wallet-transaction.entity';
 
 @Injectable()
 export class WalletService {
@@ -25,8 +30,11 @@ export class WalletService {
       where: { document: dto.document, phone: dto.phone },
     });
 
-    const balance = trx.reduce((sum, t) =>
-      t.type === 'RECHARGE' ? sum + Number(t.amount) : sum - Number(t.amount), 0);
+    const balance = trx.reduce(
+      (sum, t) =>
+        t.type === 'RECHARGE' ? sum + Number(t.amount) : sum - Number(t.amount),
+      0,
+    );
 
     return { code: 'SUCCESS', message: 'Saldo consultado', data: { balance } };
   }
@@ -38,17 +46,34 @@ export class WalletService {
     }
 
     const token = Math.floor(100000 + Math.random() * 900000).toString();
-    const session = this.sessionRepo.create({ ...dto, token, isConfirmed: false });
+    const session = this.sessionRepo.create({
+      ...dto,
+      token,
+      isConfirmed: false,
+    });
     await this.sessionRepo.save(session);
 
     // Aquí iría lógica para enviar email
     console.log(`Simulando envío de token ${token} al correo`);
 
-    return { code: 'SUCCESS', message: 'Token enviado', sessionId: session.id };
+    console.log('response: ', {
+      code: 'SUCCESS',
+      message: 'Token enviado',
+      sessionId: session.id,
+      token: token,
+    });
+    return {
+      code: 'SUCCESS',
+      message: 'Token enviado',
+      sessionId: session.id,
+      token,
+    };
   }
 
   async confirmPayment(dto: ConfirmPaymentDto) {
-    const session = await this.sessionRepo.findOne({ where: { id: dto.sessionId } });
+    const session = await this.sessionRepo.findOne({
+      where: { id: dto.sessionId },
+    });
     if (!session || session.token !== dto.token || session.isConfirmed) {
       return { code: 'ERROR', message: 'Token inválido o sesión caducada' };
     }

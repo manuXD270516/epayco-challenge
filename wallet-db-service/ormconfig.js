@@ -4,7 +4,7 @@ const isDocker = process.env.APP_ENV === 'docker';
 
 module.exports = {
   type: 'mysql',
-  host: isDocker ? process.env.DB_HOST_DOCKER : process.env.DB_HOST_LOCAL,
+  host: isDocker ? process.env.DB_HOST_DOCKER : process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT || '3306'),
   username: process.env.DB_USER,
   password: process.env.DB_PASS,

@@ -1,132 +1,141 @@
-# 💼 ePayco Wallet – Microservices Challenge
+# 🧾 ePayco Wallet – Monedero Digital Fullstack
 
-Este proyecto implementa una billetera virtual basada en arquitectura de microservicios. Incluye dos servicios RESTful desarrollados con **NestJS**, un sistema de persistencia con **MySQL**, y un cliente HTTP que actúa como gateway entre el frontend o consumidor y la base de datos.
+Plataforma web fullstack para la gestión de una billetera digital con funcionalidades como registro de clientes, recarga, consulta de saldo, pagos con token y confirmación.
 
-## 📦 Arquitectura
+---
 
-- `wallet-db-service`: Servicio NestJS con acceso a base de datos. Contiene la lógica de negocio.
-- `wallet-api-service`: Servicio NestJS que expone la API pública y se comunica con el servicio de BD vía HTTP.
-- `mysql`: Base de datos para persistir clientes, transacciones y sesiones.
-- `adminer`: Herramienta web para visualizar la base de datos.
+## 🚀 Cómo ejecutar
 
-## 🚀 Funcionalidades
-
-- Registro de cliente
-- Recarga de saldo
-- Consulta de saldo
-- Inicio de pago (generación de token)
-- Confirmación de pago (validación de token)
-
-## ⚙️ Tecnologías
-
-- NestJS
-- MySQL 8
-- Docker & Docker Compose
-- TypeORM
-- RxJS + Axios (`HttpModule`)
-- SOLID principles + modular architecture
-
-## 📁 Estructura de carpetas
-
-```
-.
-├── wallet-db-service/       # Servicio con acceso directo a BD
-├── wallet-api-service/      # Servicio expuesto al cliente
-├── docker-compose.yml
-└── .env
-```
-
-## 🐳 Cómo ejecutar
-
-### 1. Clona el repositorio
+### Opción 1: Usando Docker Compose (recomendado)
 
 ```bash
-git clone https://github.com/tu-usuario/epayco-wallet-challenge.git
-cd epayco-wallet-challenge
+docker compose up --build
 ```
 
-### 2. Define las variables de entorno en `.env`
+Abrir en el navegador:
+- Frontend: http://localhost:5173
+- API Backend: http://localhost:4000
+- Adminer: http://localhost:8080
+
+---
+
+### Opción 2: Modo Debug / Desarrollo Manual
+
+#### 1. Base de datos MySQL y Adminer (Docker)
+
+```bash
+docker compose up mysql adminer
+```
+
+#### 2. Backend DB Service (NestJS)
+
+```bash
+cd wallet-db-service
+npm install
+npm run start:dev
+```
+
+#### 3. Backend API Service (NestJS)
+
+```bash
+cd wallet-api-service
+npm install
+npm run start:dev
+```
+
+#### 4. Frontend (React + Vite)
+
+```bash
+cd wallet-frontend
+npm install
+npm run dev
+```
+
+Abrir en el navegador: http://localhost:5173
+
+---
+
+## 🔄 Flujos de Ejecución de Funcionalidades
+
+### 1. Registro y Recarga de Cliente
+1. El usuario accede al frontend y se registra como cliente (evita duplicados por documento).
+2. Una vez registrado, puede realizar una recarga de saldo usando su documento o teléfono.
+3. El saldo se actualiza dinámicamente y puede ser consultado en la sección de balance.
+
+### 2. Pago con Token y Confirmación
+1. El usuario inicia sesión y solicita un token de pago (válido por 5 minutos, visible con temporizador).
+2. El usuario comparte el token con quien va a recibir el pago.
+3. El receptor ingresa el token y confirma el pago (requiere sesión activa y token válido).
+4. El sistema descuenta el saldo y actualiza los movimientos.
+
+### 3. Consulta de Saldo
+1. El usuario accede a la sección de balance.
+2. El sistema calcula el saldo en tiempo real a partir de los movimientos registrados.
+
+---
+
+## 📁 Ejemplo de archivos .env
 
 ```env
+# .env.mysql
+DB_PASS=root
+DB_NAME=walletdb
+
+# wallet-db-service/.env
 DB_HOST=mysql
 DB_PORT=3306
 DB_USER=root
 DB_PASS=root
 DB_NAME=walletdb
-```
 
-### 3. Ejecuta el entorno con Docker
-
-```bash
-docker-compose up --build
-```
-
-- API pública: http://localhost:4000
-- Adminer (DB viewer): http://localhost:8080
-
----
-
-## 📡 Endpoints disponibles (a través de `wallet-api-service`)
-
-> Base URL: `http://localhost:4000`
-
-### 1. Registrar cliente
-
-```bash
-curl -X POST http://localhost:4000/clients   -H "Content-Type: application/json"   -d '{"document":"12345678","fullName":"Juan Pérez","email":"juan@example.com","phone":"789456123"}'
-```
-
-### 2. Recargar billetera
-
-```bash
-curl -X POST http://localhost:4000/wallet/recharge   -H "Content-Type: application/json"   -d '{"document":"12345678","phone":"789456123","amount":100.00}'
-```
-
-### 3. Consultar saldo
-
-```bash
-curl -X POST http://localhost:4000/wallet/balance   -H "Content-Type: application/json"   -d '{"document":"12345678","phone":"789456123"}'
-```
-
-### 4. Iniciar pago (genera token)
-
-```bash
-curl -X POST http://localhost:4000/wallet/pay   -H "Content-Type: application/json"   -d '{"document":"12345678","phone":"789456123","amount":20.00}'
-```
-
-### 5. Confirmar pago
-
-```bash
-curl -X POST http://localhost:4000/wallet/confirm   -H "Content-Type: application/json"   -d '{"sessionId":"<copiar_id_de_sesion>","token":"<token_enviado>"}'
+# wallet-api-service/.env
+APP_ENV=docker
+DB_SERVICE_URL_LOCAL=http://localhost:3000
+DB_SERVICE_URL_DOCKER=http://wallet-db:3000
 ```
 
 ---
 
-## 🔪 Acceder a Adminer
+## 🛠️ Tecnologías utilizadas
 
-- URL: http://localhost:8080
-- Sistema: MySQL
-- Servidor: `mysql`
-- Usuario: `root`
-- Contraseña: `root`
-- Base de datos: `walletdb`
+### Backend:
+- **NestJS**
+- **TypeORM + MySQL**
+- DTOs + Validación con `class-validator`
+- Respuestas estructuradas `{ code, message, data? }`
 
----
-
-## 📙 Video demostrativo
-
-> 🔗 Incluir el enlace al video una vez grabado (máx. 15 minutos)
-
----
-
-## 📚 Notas
-
-- Todos los servicios se comunican por hostname interno de Docker (`wallet-db`)
-- Se aplican buenas prácticas, validaciones y estructura modular
-- API protegida por separación de responsabilidades (BD vs cliente)
+### Frontend:
+- **React + TypeScript + Vite**
+- **Bootstrap 5**
+- Componentes reutilizables (`InputField`, `AlertMessage`, `Navbar`)
+- Hooks personalizados (`useForm`)
+- Clean Code aplicado
 
 ---
 
-## 👤 Autor
+## ⚙️ Funcionalidades
 
-Desarrollado por [Tu Nombre] para el challenge técnico de **ePayco** a través de **Interfell**.
+| Funcionalidad        | Descripción |
+|----------------------|-------------|
+| 📝 Registro de Cliente | Evita duplicados por documento. |
+| 💰 Recarga           | Carga de saldo por documento/teléfono. |
+| 📊 Consulta de saldo | Cálculo dinámico por movimientos. |
+| 💳 Token de Pago     | Se genera y visualiza por 5 minutos con contador. |
+| ✅ Confirmar Pago     | Requiere sesión y token activo. |
+
+---
+
+## 🖥️ UI Features
+
+- Formulario centrado y responsivo
+- Alertas visuales dinámicas
+- Temporizador para token de pago
+- Copiar al portapapeles `token` y `sessionId`
+
+---
+
+## 🧪 API Documentada – Postman
+
+🔗 [https://documenter.getpostman.com/view/2654210/2sB2qi7cee](https://documenter.getpostman.com/view/2654210/2sB2qi7cee)
+
+---

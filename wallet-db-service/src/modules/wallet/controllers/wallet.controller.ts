@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { RechargeDto, BalanceDto, StartPaymentDto, ConfirmPaymentDto } from '../../dto/wallet.dtos';
-import { WalletService } from '../../services/wallet/wallet.service';
+import { RechargeDto, BalanceDto, StartPaymentDto, ConfirmPaymentDto } from '../dto/wallet.dtos';
+import { WalletService } from '../services/wallet.service';
 @Controller('wallet')
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}

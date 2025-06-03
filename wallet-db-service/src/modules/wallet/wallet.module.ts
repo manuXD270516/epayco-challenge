@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { WalletService } from './services/wallet/wallet.service';
-import { WalletController } from './controllers/wallet/wallet.controller';
+import { WalletService } from './services/wallet.service';
+import { WalletController } from './controllers/wallet.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PaymentSession } from '../client/entities/payment-session.entity';
-import { WalletTransaction } from '../client/entities/wallet-transaction.entity';
+import { PaymentSession } from './entities/payment-session.entity';
+import { WalletTransaction } from './entities/wallet-transaction.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([WalletTransaction, PaymentSession])],
