@@ -37,7 +37,8 @@ services:
     container_name: wallet-api
     ports:
       - "4000:3000"
-    
+    environment:
+      APP_ENV: docker
     env_file: 
       - path: ./wallet-api-service/.env
     depends_on:

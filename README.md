@@ -9,7 +9,7 @@ Plataforma web fullstack para la gestión de una billetera digital con funcional
 ### Opción 1: Usando Docker Compose (recomendado)
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
 Abrir en el navegador:

@@ -12,7 +12,7 @@ interface BalanceResponse {
 }
 
 export default function Balance() {
-  const { form, handleChange, resetForm } = useForm({
+  const { form, handleChange } = useForm({
     document: "",
     phone: ""
   });
